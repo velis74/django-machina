@@ -62,6 +62,11 @@ class ForumPermissionChecker(object):
                     .filter(**user_kwargs_filter) \
                     .filter(Q(forum__isnull=True) | Q(forum=forum))
 
+                if not user_perms.exists():
+                    user_perms = UserForumPermission.objects.select_related() \
+                        .filter(anonymous_user=True) \
+                        .filter(Q(forum__isnull=True) | Q(forum=forum))
+
                 # Computes the list of permissions that are granted for all the forums
                 globally_granted_user_perms = list(
                     filter(lambda p: p.has_perm and p.forum_id is None, user_perms))
