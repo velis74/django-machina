@@ -362,6 +362,11 @@ class PermissionHandler(object):
                 .filter(**user_kwargs_filter) \
                 .filter(permission__codename__in=perm_codenames)
 
+            if not user_perms.exists():
+                user_perms = UserForumPermission.objects \
+                    .filter(anonymous_user=True) \
+                    .filter(permission__codename__in=perm_codenames)
+
             # The first thing to do is to compute three lists of permissions: one containing only
             # globally granted permissions, one containing granted permissions (these permissions
             # are associated with specific forums) and one containing non granted permissions (the
