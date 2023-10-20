@@ -6,6 +6,7 @@ __pycache__
 .coverage
 *.egg-info/
 *.egg/
+.idea/
 .cache/
 /dist/
 /build/

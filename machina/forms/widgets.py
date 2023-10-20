@@ -38,8 +38,8 @@ class MarkdownTextareaWidget(Textarea):
             'machina/build/js/machina.editor.min.js',
         )
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         attrs = {} if attrs is None else attrs
         classes = attrs.get('classes', '')
         attrs['class'] = classes + ' machina-mde-markdown'
-        return super(MarkdownTextareaWidget, self).render(name, value, attrs)
+        return super(MarkdownTextareaWidget, self).render(name, value, attrs, renderer)
