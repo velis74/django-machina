@@ -62,7 +62,9 @@ class ForumPermissionChecker(object):
                     .filter(**user_kwargs_filter) \
                     .filter(Q(forum__isnull=True) | Q(forum=forum))
 
+                fallback_anonymous = False
                 if not user_perms.exists():
+                    fallback_anonymous = True
                     user_perms = UserForumPermission.objects.select_related() \
                         .filter(anonymous_user=True) \
                         .filter(Q(forum__isnull=True) | Q(forum=forum))
@@ -80,10 +82,13 @@ class ForumPermissionChecker(object):
                     p.permission.codename for p in per_forum_granted_user_perms]
 
                 # Computes the list of permissions that are not granted on a per-forum basis
-                per_forum_nongranted_user_perms = list(
-                    filter(lambda p: not p.has_perm and p.forum_id is not None, user_perms))
-                per_forum_nongranted_user_perms = [
-                    p.permission.codename for p in per_forum_nongranted_user_perms]
+                if fallback_anonymous:
+                    per_forum_nongranted_user_perms = []
+                else:
+                    per_forum_nongranted_user_perms = list(
+                        filter(lambda p: not p.has_perm and p.forum_id is not None, user_perms))
+                    per_forum_nongranted_user_perms = [
+                        p.permission.codename for p in per_forum_nongranted_user_perms]
 
                 # If the considered user have no global permissions, the permissions defined by
                 # the DEFAULT_AUTHENTICATED_USER_FORUM_PERMISSIONS settings are used instead

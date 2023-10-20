@@ -362,7 +362,9 @@ class PermissionHandler(object):
                 .filter(**user_kwargs_filter) \
                 .filter(permission__codename__in=perm_codenames)
 
+            fallback_anonymous = False
             if not user_perms.exists():
+                fallback_anonymous = True
                 user_perms = UserForumPermission.objects \
                     .filter(anonymous_user=True) \
                     .filter(permission__codename__in=perm_codenames)
@@ -383,8 +385,11 @@ class PermissionHandler(object):
             # explicitely set for a user will not be considered as non granted if a "non granted"
             # permission also exists. The explicitly granted permissions always win precedence.
             granted_user_forum_ids = [p.forum_id for p in per_forum_granted_user_perms]
-            nongranted_forum_ids = [p.forum_id for p in per_forum_nongranted_user_perms
-                                    if p.forum_id not in granted_user_forum_ids]
+            if fallback_anonymous:
+                nongranted_forum_ids = []
+            else:
+                nongranted_forum_ids = [p.forum_id for p in per_forum_nongranted_user_perms
+                                        if p.forum_id not in granted_user_forum_ids]
 
             required_perm_codenames_count = len(perm_codenames)
             initial_forum_ids = [f.id for f in forums]
