@@ -17,7 +17,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from mptt.exceptions import InvalidMove
 from mptt.forms import TreeNodeChoiceField
 

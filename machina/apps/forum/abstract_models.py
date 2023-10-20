@@ -6,9 +6,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
 from django.utils.encoding import force_text
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import slugify
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel
 from mptt.models import TreeForeignKey
 
@@ -19,7 +18,6 @@ from machina.models.fields import ExtendedImageField
 from machina.models.fields import MarkupTextField
 
 
-@python_2_unicode_compatible
 class AbstractForum(MPTTModel, DatedModel):
     """ The main forum model.
 
@@ -125,10 +123,10 @@ class AbstractForum(MPTTModel, DatedModel):
         super(AbstractForum, self).clean()
 
         if self.parent and self.parent.is_link:
-                raise ValidationError(_('A forum can not have a link forum as parent'))
+            raise ValidationError(_('A forum can not have a link forum as parent'))
 
         if self.is_category and self.parent and self.parent.is_category:
-                raise ValidationError(_('A category can not have another category as parent'))
+            raise ValidationError(_('A category can not have another category as parent'))
 
         if self.is_link and not self.link:
             raise ValidationError(_('A link forum must have a link associated with it'))

@@ -2,7 +2,7 @@
 
 from __future__ import unicode_literals
 
-from collections import Iterable
+from collections.abc import Iterable
 
 from django.conf import settings
 from django.contrib.auth.decorators import REDIRECT_FIELD_NAME
@@ -11,7 +11,6 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
 from django.shortcuts import resolve_url
 from django.utils.http import urlquote
-from django.utils.six import string_types
 
 
 class PermissionRequiredMixin(object):
@@ -50,7 +49,7 @@ class PermissionRequiredMixin(object):
         if not self.permission_required:
             return perms
 
-        if isinstance(self.permission_required, string_types):
+        if isinstance(self.permission_required, str):
             perms = [self.permission_required, ]
         elif isinstance(self.permission_required, Iterable):
             perms = [perm for perm in self.permission_required]

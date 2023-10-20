@@ -4,8 +4,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from machina.conf import settings as machina_settings
 from machina.core import validators
@@ -13,7 +12,6 @@ from machina.models.fields import ExtendedImageField
 from machina.models.fields import MarkupTextField
 
 
-@python_2_unicode_compatible
 class AbstractForumProfile(models.Model):
     """
     Represents the profile associated with each forum user.

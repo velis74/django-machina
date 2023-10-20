@@ -2,6 +2,8 @@
 
 from __future__ import unicode_literals
 
+from io import BytesIO
+
 from django.conf import settings
 from django.core.cache import InvalidCacheBackendError
 from django.core.cache import caches
@@ -9,7 +11,6 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.uploadedfile import TemporaryUploadedFile
 from django.utils.datastructures import MultiValueDict
-from django.utils.six import BytesIO
 
 from machina.conf import settings as machina_settings
 

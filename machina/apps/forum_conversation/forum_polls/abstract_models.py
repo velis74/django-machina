@@ -6,15 +6,13 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from machina.apps.forum_conversation.forum_polls import validators
 from machina.models.abstract_models import DatedModel
 
 
-@python_2_unicode_compatible
 class AbstractTopicPoll(DatedModel):
     """
     Represents a poll embedded in a forum topic.
@@ -60,7 +58,6 @@ class AbstractTopicPoll(DatedModel):
         return votes
 
 
-@python_2_unicode_compatible
 class AbstractTopicPollOption(models.Model):
     """
     Represents a poll option.
@@ -84,7 +81,6 @@ class AbstractTopicPollOption(models.Model):
         return (self.votes.count() / (len(self.poll.votes) or 1)) * 100
 
 
-@python_2_unicode_compatible
 class AbstractTopicPollVote(models.Model):
     """
     Represents a poll vote.

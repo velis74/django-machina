@@ -2,6 +2,8 @@
 
 from __future__ import unicode_literals
 
+from functools import partial
+from io import BytesIO
 from os import path
 
 from django.core.exceptions import ImproperlyConfigured
@@ -11,16 +13,12 @@ from django.db.models import signals
 from django.forms import Textarea
 from django.forms import ValidationError
 from django.template.defaultfilters import filesizeformat
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.encoding import smart_str
-from django.utils.functional import curry
 from django.utils.safestring import SafeData
 from django.utils.safestring import mark_safe
-from django.utils.six import BytesIO
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from machina.conf import settings as machina_settings
-
 
 _rendered_field_name = lambda name: '_{}_rendered'.format(name)
 
@@ -48,7 +46,7 @@ def _get_render_function(dotted_path, kwargs):
     module, func = dotted_path.rsplit('.', 1)
     module, func = smart_str(module), smart_str(func)
     func = getattr(__import__(module, {}, {}, [func]), func)
-    return curry(func, **kwargs)
+    return partial(func, **kwargs)
 
 
 try:
@@ -59,11 +57,10 @@ except ImportError as e:
     raise ImproperlyConfigured(_('Could not import MACHINA_MARKUP_LANGUAGE {}: {}').format(
         machina_settings.MACHINA_MARKUP_LANGUAGE,
         e))
-except AttributeError as e:
+except AttributeError:
     raise ImproperlyConfigured(_('MACHINA_MARKUP_LANGUAGE setting is required'))
 
 
-@python_2_unicode_compatible
 class MarkupText(SafeData):
     def __init__(self, instance, field_name, rendered_field_name):
         # Stores a reference to the instance along with field names

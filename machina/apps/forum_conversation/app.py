@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.conf.urls import include
 from django.conf.urls import url
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from machina.apps.forum_conversation.forum_attachments.app import application as attachments_app
 from machina.apps.forum_conversation.forum_polls.app import application as polls_app

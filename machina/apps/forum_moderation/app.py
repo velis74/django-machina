@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from django.conf.urls import url
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from machina.core.app import Application
 from machina.core.loading import get_class
