@@ -7,6 +7,7 @@ __pycache__
 .coverage
 *.egg-info/
 *.egg/
+.idea/
 .cache/
 .pytest_cache/
 .vscode/

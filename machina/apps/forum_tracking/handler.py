@@ -68,7 +68,7 @@ class TrackingHandler:
 
         if tracked_topics:
             for topic in topics:
-                topic_last_modification_date = topic.last_post_on or topic.created
+                topic_last_modification_date = topic.last_post_on or topic.updated
                 if (
                     topic.id in tracked_topics.keys() and
                     topic_last_modification_date > tracked_topics[topic.id]
@@ -83,7 +83,7 @@ class TrackingHandler:
 
         if tracked_forums:
             for topic in topics:
-                topic_last_modification_date = topic.last_post_on or topic.created
+                topic_last_modification_date = topic.last_post_on or topic.updated
                 if (
                     (topic.forum_id in tracked_forums.keys() and topic.id not in tracked_topics) and
                     topic_last_modification_date > tracked_forums[topic.forum_id]
