@@ -1,12 +1,15 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum member signal receivers
+    =============================
 
-from __future__ import unicode_literals
+    This module defines signal receivers.
+
+"""
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import F
-from django.db.models.signals import post_delete
-from django.db.models.signals import pre_save
+from django.db.models.signals import post_delete, pre_save
 from django.dispatch import receiver
 
 from machina.core.db.models import get_model
@@ -25,6 +28,11 @@ def increase_posts_count(sender, instance, **kwargs):
     This receiver handles the update of the profile related to the user who is the poster of the
     forum post being created or updated.
     """
+
+    if kwargs.get('raw'):
+        # do nothing, when loading data (fixtures)
+        return
+
     if instance.poster is None:
         # An anonymous post is considered. No profile can be updated in
         # that case.
@@ -57,8 +65,13 @@ def decrease_posts_count_after_post_unaproval(sender, instance, **kwargs):
     This receiver handles the unaproval of a forum post: the posts count associated with the post's
     author is decreased.
     """
-    if not instance.pk:
-        # Do not consider posts being created.
+
+    if kwargs.get('raw'):
+        # do nothing, when loading data (fixtures)
+        return
+
+    if not instance.pk or not instance.poster:
+        # Do not consider posts being created or posts of anonymous users
         return
 
     profile, dummy = ForumProfile.objects.get_or_create(user=instance.poster)

@@ -1,6 +1,10 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum member forms
+    ==================
 
-from __future__ import unicode_literals
+    This module defines forms provided by the ``forum_member`` application.
+
+"""
 
 from django import forms
 
@@ -14,7 +18,7 @@ ForumProfile = get_model('forum_member', 'ForumProfile')
 class ForumProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
-        super(ForumProfileForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if not machina_settings.PROFILE_AVATARS_ENABLED:
             del self.fields["avatar"]
 

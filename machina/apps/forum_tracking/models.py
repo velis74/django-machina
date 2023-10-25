@@ -1,9 +1,14 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum tracking models
+    =====================
 
-from __future__ import unicode_literals
+    This module defines models provided by the ``forum_tracking`` application.
 
-from machina.apps.forum_tracking.abstract_models import AbstractForumReadTrack
-from machina.apps.forum_tracking.abstract_models import AbstractTopicReadTrack
+"""
+
+from machina.apps.forum_tracking.abstract_models import (
+    AbstractForumReadTrack, AbstractTopicReadTrack
+)
 from machina.core.db.models import model_factory
 
 

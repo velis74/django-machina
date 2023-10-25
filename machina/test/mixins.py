@@ -1,11 +1,7 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 from django.urls import reverse
 
 
-class AdminBaseViewTestMixin(object):
+class AdminBaseViewTestMixin:
     """
     Mixin that can be used to append a test to an AdminClientTestCase in order to
     test that the admin base views associated with a given model are accessible

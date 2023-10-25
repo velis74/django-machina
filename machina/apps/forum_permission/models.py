@@ -1,10 +1,14 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum permission models
+    =======================
 
-from __future__ import unicode_literals
+    This module defines models provided by the ``forum_permission`` application.
 
-from machina.apps.forum_permission.abstract_models import AbstractForumPermission
-from machina.apps.forum_permission.abstract_models import AbstractGroupForumPermission
-from machina.apps.forum_permission.abstract_models import AbstractUserForumPermission
+"""
+
+from machina.apps.forum_permission.abstract_models import (
+    AbstractForumPermission, AbstractGroupForumPermission, AbstractUserForumPermission
+)
 from machina.core.db.models import model_factory
 
 

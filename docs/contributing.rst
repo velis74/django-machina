@@ -24,7 +24,7 @@ Development environment
 
 .. note::
 
-    The following steps assumes you have `Pipenv <https://docs.pipenv.org/>`_ and
+    The following steps assumes you have `Poetry <https://python-poetry.org/>`_ and
     `npm <https://www.npmjs.com/>`_ installed on your system.
 
 You should first fork the
@@ -63,7 +63,7 @@ You can run the whole test suite using the following command:
 
 .. code-block:: bash
 
-    $ pipenv run py.test
+    $ make tests
 
 Code coverage should not decrease with pull requests! You can easily get the code coverage of the
 project using the following command:
@@ -90,5 +90,5 @@ Security
 ========
 
 If you've found a security issue please **do not open a Github issue**. Instead, send an email at
-``security@machina-forum.io``. We'll then investigate together to resolve the problem so we can make
+``security@ellmetha.dev``. We'll then investigate together to resolve the problem so we can make
 an announcement about a solution along with the vulnerability.

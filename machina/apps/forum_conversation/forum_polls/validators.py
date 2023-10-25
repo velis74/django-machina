@@ -1,6 +1,10 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum polls validators
+    ======================
 
-from __future__ import unicode_literals
+    This module defines validators provided by the ``forum_polls`` application.
+
+"""
 
 from django.core import validators
 

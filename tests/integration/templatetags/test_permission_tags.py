@@ -1,24 +1,17 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 import pytest
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.template import Context
-from django.template import TemplateSyntaxError
+from django.http import HttpResponse
+from django.template import Context, TemplateSyntaxError
 from django.template.base import Template
 from django.test.client import RequestFactory
 
 from machina.apps.forum_permission.middleware import ForumPermissionMiddleware
 from machina.core.db.models import get_model
 from machina.core.loading import get_class
-from machina.test.factories import GroupFactory
-from machina.test.factories import PostFactory
-from machina.test.factories import TopicPollFactory
-from machina.test.factories import UserFactory
-from machina.test.factories import create_category_forum
-from machina.test.factories import create_forum
-from machina.test.factories import create_topic
+from machina.test.factories import (
+    GroupFactory, PostFactory, TopicPollFactory, UserFactory, create_category_forum, create_forum,
+    create_topic
+)
 
 
 Forum = get_model('forum', 'Forum')
@@ -62,7 +55,7 @@ class TestGetPermissionTag(object):
 
     def get_request(self, url='/'):
         request = self.request_factory.get('/')
-        middleware = SessionMiddleware()
+        middleware = SessionMiddleware(lambda r: HttpResponse("Response"))
         middleware.process_request(request)
         request.session.save()
         return request
@@ -72,7 +65,7 @@ class TestGetPermissionTag(object):
         def get_rendered(user):
             request = self.get_request()
             request.user = user
-            ForumPermissionMiddleware().process_request(request)
+            ForumPermissionMiddleware(lambda r: HttpResponse("Response")).process_request(request)
             t = Template(
                 self.loadstatement +
                 '{% get_permission \'can_access_moderation_queue\' request.user as user_can_access_moderation_queue %}'  # noqa
@@ -94,7 +87,7 @@ class TestGetPermissionTag(object):
         def get_rendered(post, user):
             request = self.get_request()
             request.user = user
-            ForumPermissionMiddleware().process_request(request)
+            ForumPermissionMiddleware(lambda r: HttpResponse("Response")).process_request(request)
             t = Template(
                 self.loadstatement +
                 '{% get_permission \'can_download_files\' post.topic.forum request.user as user_can_download_files %}'  # noqa
@@ -128,7 +121,7 @@ class TestGetPermissionTag(object):
         def get_rendered(post, user):
             request = self.get_request()
             request.user = user
-            ForumPermissionMiddleware().process_request(request)
+            ForumPermissionMiddleware(lambda r: HttpResponse("Response")).process_request(request)
             t = Template(
                 self.loadstatement +
                 '{% get_permission \'can_edit_post\' post request.user as user_can_edit_post %}'
@@ -161,7 +154,7 @@ class TestGetPermissionTag(object):
         def get_rendered(post, user):
             request = self.get_request()
             request.user = user
-            ForumPermissionMiddleware().process_request(request)
+            ForumPermissionMiddleware(lambda r: HttpResponse("Response")).process_request(request)
             t = Template(
                 self.loadstatement +
                 '{% get_permission \'can_delete_post\' post request.user as user_can_delete_post %}'
@@ -194,7 +187,7 @@ class TestGetPermissionTag(object):
         def get_rendered(topic, user):
             request = self.get_request()
             request.user = user
-            ForumPermissionMiddleware().process_request(request)
+            ForumPermissionMiddleware(lambda r: HttpResponse("Response")).process_request(request)
             t = Template(
                 self.loadstatement +
                 '{% get_permission \'can_add_post\' topic request.user as user_can_add_post %}'
@@ -227,7 +220,7 @@ class TestGetPermissionTag(object):
         def get_rendered(poll, user):
             request = self.get_request()
             request.user = user
-            ForumPermissionMiddleware().process_request(request)
+            ForumPermissionMiddleware(lambda r: HttpResponse("Response")).process_request(request)
             t = Template(
                 self.loadstatement +
                 '{% get_permission \'can_vote_in_poll\' poll request.user as user_can_vote_in_poll %}'  # noqa
@@ -264,7 +257,7 @@ class TestGetPermissionTag(object):
         def get_rendered(forum, user):
             request = self.get_request()
             request.user = user
-            ForumPermissionMiddleware().process_request(request)
+            ForumPermissionMiddleware(lambda r: HttpResponse("Response")).process_request(request)
             t = Template(
                 self.loadstatement +
                 '{% get_permission \'can_add_topic\' forum request.user as user_can_add_topic %}'
@@ -284,7 +277,7 @@ class TestGetPermissionTag(object):
         # Setup
         request = self.get_request()
         request.user = self.u1
-        ForumPermissionMiddleware().process_request(request)
+        ForumPermissionMiddleware(lambda r: HttpResponse("Response")).process_request(request)
         context = Context({'request': request})
 
         templates = [
@@ -314,7 +307,7 @@ class TestGetPermissionTag(object):
         # Setup
         request = self.get_request()
         request.user = self.u1
-        ForumPermissionMiddleware().process_request(request)
+        ForumPermissionMiddleware(lambda r: HttpResponse("Response")).process_request(request)
         context = Context({'request': request})
 
         templates = [

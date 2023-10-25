@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 import pytest
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.http import HttpResponse
 from django.template import Context
 from django.template.base import Template
 from django.template.loader import render_to_string
@@ -12,12 +9,9 @@ from django.test.client import RequestFactory
 from machina.conf import settings as machina_settings
 from machina.core.db.models import get_model
 from machina.core.loading import get_class
-from machina.test.factories import GroupFactory
-from machina.test.factories import PostFactory
-from machina.test.factories import UserFactory
-from machina.test.factories import create_category_forum
-from machina.test.factories import create_forum
-from machina.test.factories import create_topic
+from machina.test.factories import (
+    GroupFactory, PostFactory, UserFactory, create_category_forum, create_forum, create_topic
+)
 
 
 Forum = get_model('forum', 'Forum')
@@ -78,7 +72,7 @@ class BaseConversationTagsTestCase(object):
 
     def get_request(self, url='/'):
         request = self.request_factory.get('/')
-        middleware = SessionMiddleware()
+        middleware = SessionMiddleware(lambda r: HttpResponse("Response"))
         middleware.process_request(request)
         request.session.save()
         return request

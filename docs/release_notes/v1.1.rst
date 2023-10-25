@@ -1,0 +1,42 @@
+#############################################
+Django-machina 1.1 release notes (2020-03-13)
+#############################################
+
+Requirements and compatibility
+------------------------------
+
+Python 3.5, 3.6, 3.7 and 3.8. Django 2.2 and 3.0.
+
+Major changes
+-------------
+
+* It is now possible to configure permissions targetting all logged in users from the forums section
+  of the Django admin
+  (`#170 <https://github.com/ellmetha/django-machina/pull/170>`_)
+
+Minor changes
+-------------
+
+* Fix incorrect icon class names used for the up and down buttons (allowing to move forums) in the
+  admin
+  (`#166 <https://github.com/ellmetha/django-machina/issues/166>`_)
+* Fix user / group precedence issue related to forum permissions: now user permissions always have
+  precedence over group permissions
+  (`#163 <https://github.com/ellmetha/django-machina/issues/163>`_)
+* Fix user forum permissions and group forum permissions panels being displayed in the admin
+  regardless of the fact that the user has the necessary permission to edit those models
+  (`#172 <https://github.com/ellmetha/django-machina/pull/172>`_)
+* Prevent users from copying forum permissions in the admin if they don't have the necessary
+  permissions to do so (_add_ and _change_ permissions for user forum permissions and group forum
+  permissions)
+* Fix database error happening when rejecting a post of an anonymous user
+  (`#176 <https://github.com/ellmetha/django-machina/pull/176>`_)
+* Fix error occuring with RSS feeds containing topics authored by anonymous users
+  (`#180 <https://github.com/ellmetha/django-machina/pull/180>`_)
+* Fix possible empty topic slug generation
+  (`#188 <https://github.com/ellmetha/django-machina/issues/188>`_)
+
+Backwards incompatible changes
+------------------------------
+
+* The URLs that are part of django-machina are no longer translated nor translatable

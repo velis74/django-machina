@@ -1,6 +1,10 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum attachments model admin definitions
+    =========================================
 
-from __future__ import unicode_literals
+    This module defines admin classes used to populate the Django administration dashboard.
+
+"""
 
 from django.contrib import admin
 
@@ -11,6 +15,8 @@ Attachment = get_model('forum_attachments', 'Attachment')
 
 
 class AttachmentAdmin(admin.ModelAdmin):
+    """ The Attachment model admin. """
+
     list_display = ('id', 'post', 'comment', 'file', )
     list_display_links = ('id', 'post', 'comment', )
     raw_id_fields = ('post', )

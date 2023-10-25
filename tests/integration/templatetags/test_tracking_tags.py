@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 import pytest
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.http import HttpResponse
 from django.template import Context
 from django.template.base import Template
 from django.test.client import RequestFactory
@@ -11,14 +8,10 @@ from django.test.client import RequestFactory
 from machina.apps.forum_permission.middleware import ForumPermissionMiddleware
 from machina.core.db.models import get_model
 from machina.core.loading import get_class
-from machina.test.factories import ForumReadTrackFactory
-from machina.test.factories import GroupFactory
-from machina.test.factories import PostFactory
-from machina.test.factories import TopicReadTrackFactory
-from machina.test.factories import UserFactory
-from machina.test.factories import create_category_forum
-from machina.test.factories import create_forum
-from machina.test.factories import create_topic
+from machina.test.factories import (
+    ForumReadTrackFactory, GroupFactory, PostFactory, TopicReadTrackFactory, UserFactory,
+    create_category_forum, create_forum, create_topic
+)
 
 
 Forum = get_model('forum', 'Forum')
@@ -67,7 +60,7 @@ class BaseTrackingTagsTestCase(object):
 
     def get_request(self, url='/'):
         request = self.request_factory.get('/')
-        middleware = SessionMiddleware()
+        middleware = SessionMiddleware(lambda r: HttpResponse("Response"))
         middleware.process_request(request)
         request.session.save()
         return request
@@ -79,7 +72,7 @@ class TestUnreadTopicsTag(BaseTrackingTagsTestCase):
         def get_rendered(topics, user):
             request = self.get_request()
             request.user = user
-            ForumPermissionMiddleware().process_request(request)
+            ForumPermissionMiddleware(lambda r: HttpResponse("Response")).process_request(request)
             t = Template(
                 self.loadstatement + '{% get_unread_topics topics request.user as unread_topics %}')
             c = Context({'topics': topics, 'request': request})

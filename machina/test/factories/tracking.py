@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 import factory
+import factory.django
 
 from machina.core.db.models import get_model
 from machina.test.factories.auth import UserFactory
@@ -14,7 +11,7 @@ ForumReadTrack = get_model('forum_tracking', 'ForumReadTrack')
 TopicReadTrack = get_model('forum_tracking', 'TopicReadTrack')
 
 
-class ForumReadTrackFactory(factory.DjangoModelFactory):
+class ForumReadTrackFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
     forum = factory.SubFactory(ForumFactory)
 
@@ -22,7 +19,7 @@ class ForumReadTrackFactory(factory.DjangoModelFactory):
         model = ForumReadTrack
 
 
-class TopicReadTrackFactory(factory.DjangoModelFactory):
+class TopicReadTrackFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
     topic = factory.SubFactory(TopicFactory)
 

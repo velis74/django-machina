@@ -1,47 +1,53 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum attachments cache
+    =======================
 
-from __future__ import unicode_literals
+    This module defines an abstraction allowing to put forum attachments into cache when users are
+    creating forum posts and topics.
+
+"""
+
+from io import BytesIO
 
 from django.conf import settings
-from django.core.cache import InvalidCacheBackendError
-from django.core.cache import caches
+from django.core.cache import InvalidCacheBackendError, caches
 from django.core.exceptions import ImproperlyConfigured
-from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.core.files.uploadedfile import TemporaryUploadedFile
+from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
 from django.utils.datastructures import MultiValueDict
-from django.utils.six import BytesIO
 
 from machina.conf import settings as machina_settings
 
 
-class AttachmentCache(object):
-    """
-    The attachments cache. This one should be used with a FileBasedCache backend.
-    But this can be overriden. The attachments cache acts as a wrapper and ensure
-    that the states (name, size, content type, charset and content) of all files
-    from any request.FILES dict are saved inside the considered backend when calling
-    the 'set' method. Conversely, the 'get' method will populate a dictionary of
-    InMemoryUploadedFile instances or TemporaryUploadedFile instancesby using these
-    states.
+class AttachmentCache:
+    """ The attachments cache.
+
+    This one should be used with a FileBasedCache backend. But this can be overriden. The
+    attachments cache acts as a wrapper and ensure that the states (name, size, content type,
+    charset and content) of all files from any request.FILES dict are saved inside the considered
+    backend when calling the 'set' method. Conversely, the 'get' method will populate a dictionary
+    of InMemoryUploadedFile instances or TemporaryUploadedFile instancesby using these states.
+
     """
     def __init__(self):
         self.backend = self.get_backend()
 
     def get_backend(self):
+        """ Returns the associated cache backend. """
         try:
             cache = caches[machina_settings.ATTACHMENT_CACHE_NAME]
         except InvalidCacheBackendError:
             raise ImproperlyConfigured(
                 'The attachment cache backend ({}) is not configured'.format(
-                    machina_settings.ATTACHMENT_CACHE_NAME))
+                    machina_settings.ATTACHMENT_CACHE_NAME,
+                ),
+            )
         return cache
 
     def set(self, key, files):
-        """
-        Stores the state of each file embedded in the request.FILES MultiValueDict
-        instance. This instance is assumed to be passed as the 'files' argument.
-        Each state stored in the cache is a dictionary containing the following
-        values:
+        """ Stores the state of each file embedded in the request.FILES MultiValueDict instance.
+
+        This instance is assumed to be passed as the 'files' argument. Each state stored in the
+        cache is a dictionary containing the following values:
 
             name
                 The name of the uploaded file.
@@ -55,6 +61,7 @@ class AttachmentCache(object):
                 The charset of the uploaded file.
             content
                 The content of the uploaded file.
+
         """
         files_states = {}
 
@@ -74,9 +81,8 @@ class AttachmentCache(object):
         self.backend.set(key, files_states)
 
     def get(self, key):
-        """
-        Regenerates a MultiValueDict instance containing the files related to all
-        file states stored for the given key.
+        """ Regenerates a MultiValueDict instance containing the files related to all file states
+            stored for the given key.
         """
         upload = None
         files_states = self.backend.get(key)
@@ -93,7 +99,8 @@ class AttachmentCache(object):
                         state['name'],
                         state['content_type'],
                         state['size'],
-                        state['charset'])
+                        state['charset'],
+                    )
                     upload.file = f
                 else:
                     f = BytesIO()
@@ -104,7 +111,8 @@ class AttachmentCache(object):
                         name=state['name'],
                         content_type=state['content_type'],
                         size=state['size'],
-                        charset=state['charset'])
+                        charset=state['charset'],
+                    )
                 files[name] = upload
 
                 # Go to the first byte in the file for future use
@@ -113,6 +121,7 @@ class AttachmentCache(object):
         return files
 
     def delete(self, key):
+        """ Deletes a file associated with a specific key. """
         self.backend.delete(key)
 
 

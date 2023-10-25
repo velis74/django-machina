@@ -1,16 +1,9 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 import pytest
 from django.conf import settings
 from django.test.utils import override_settings
 
 from machina.core.db.models import get_model
-from machina.core.loading import AppNotFoundError
-from machina.core.loading import ClassNotFoundError
-from machina.core.loading import get_class
-from machina.core.loading import get_classes
+from machina.core.loading import AppNotFoundError, ClassNotFoundError, get_class, get_classes
 
 
 class TestClassLoadingFunctions(object):
@@ -34,6 +27,13 @@ class TestClassLoadingFunctions(object):
         # Run & check
         with pytest.raises(ClassNotFoundError):
             get_class('forum.models', 'Foo')
+
+    def test_get_class_with_app_config(self):
+        apps = list(settings.INSTALLED_APPS)
+        idx = apps.index('tests._testsite.apps.forum_conversation')
+        apps[idx] += '.apps.ForumConversationAppConfig'
+        with override_settings(INSTALLED_APPS=apps):
+            get_class('forum_conversation.models', 'Post')
 
     def test_raise_importerror_if_app_raises_importerror(self):
         # Setup

@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*-
-
 import os
 
 from django import VERSION as DJANGO_VERSION
 
-from machina import MACHINA_MAIN_STATIC_DIR
-from machina import MACHINA_MAIN_TEMPLATE_DIR
-from machina import get_apps as get_machina_apps
+from machina import MACHINA_MAIN_STATIC_DIR, MACHINA_MAIN_TEMPLATE_DIR
 
 
 class DisableMigrations(object):
@@ -42,6 +38,8 @@ elif DB_CONFIG == 'postgres':
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'machina_test',
             'USER': 'postgres',
+            'PASSWORD': 'postgres',
+            'HOST': 'localhost',
         }
     }
 elif DB_CONFIG == 'mysql':
@@ -50,6 +48,13 @@ elif DB_CONFIG == 'mysql':
             'ENGINE': 'django.db.backends.mysql',
             'NAME': 'machina_test',
             'USER': 'root',
+            'PASSWORD': 'root',
+            'HOST': 'localhost',
+            'PORT': 3307,
+            'TEST': {
+                'CHARSET': 'utf8mb4',
+                'COLLATION': 'utf8mb4_general_ci',
+            },
         }
     }
 
@@ -80,7 +85,7 @@ TEMPLATES = [
     },
 ]
 
-INSTALLED_APPS = [
+INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.admin',
     'django.contrib.contenttypes',
@@ -91,7 +96,20 @@ INSTALLED_APPS = [
     'haystack',
     'widget_tweaks',
     'tests',
-] + get_machina_apps(['tests._testsite.apps.forum_conversation', ])
+
+    # Machina apps.
+    'machina',
+    'machina.apps.forum',
+    'machina.apps.forum_conversation.forum_attachments',
+    'machina.apps.forum_conversation.forum_polls',
+    'machina.apps.forum_feeds',
+    'machina.apps.forum_moderation',
+    'machina.apps.forum_search',
+    'machina.apps.forum_tracking',
+    'machina.apps.forum_member',
+    'machina.apps.forum_permission',
+    'tests._testsite.apps.forum_conversation',
+)
 
 SITE_ID = 1
 
@@ -160,6 +178,8 @@ CACHES = {
 SILENCED_SYSTEM_CHECKS = ['1_6.W001']
 
 SECRET_KEY = 'key'
+
+USE_TZ = False
 
 try:
     from .settings_local import *  # noqa

@@ -1,0 +1,16 @@
+###############################################
+Django-machina 1.1.2 release notes (2020-08-29)
+###############################################
+
+Requirements and compatibility
+------------------------------
+
+Python 3.5, 3.6, 3.7 and 3.8. Django 2.2, 3.0 and 3.1
+
+Minor changes
+-------------
+
+* Fix possible inconsistency in permissions handling for permissions targetting all authenticated
+  users (`#194 <https://github.com/ellmetha/django-machina/pull/194>`_)
+* Fix unexpected "Attachments" tab link displayed in the topic form when the associated permission is not granted
+* Bootstrap version is upgraded to 4.5.2

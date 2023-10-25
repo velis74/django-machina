@@ -1,8 +1,9 @@
-.PHONY: init install qa lint tests spec coverage travis docs
+PROJECT_PACKAGE := machina
+TEST_PACKAGE := tests
 
 
 init:
-	pipenv install --three --dev
+	poetry install
 
 
 # DEVELOPMENT
@@ -11,21 +12,29 @@ init:
 # locales, build documentation, etc.
 # --------------------------------------------------------------------------------------------------
 
-# Generates assets packaged with django-machina.
+.PHONY: c console
+## Alias of "console".
+c: console
+## Launch a development console.
+console:
+	poetry run ipython
+
+## Generates assets packaged with django-machina.
 staticfiles:
 	npm run gulp
 
-# Generate the project's .po files.
+## Generate the project's .po files.
 messages:
-	cd machina && pipenv run python -m django makemessages -a
+	cd machina && poetry run python -m django makemessages --no-wrap --no-location -a
 
-# Compiles the project's .po files.
+## Compiles the project's .po files.
 compiledmessages:
-	cd machina && pipenv run python -m django compilemessages
+	cd machina && poetry run python -m django compilemessages
 
-# Builds the documentation.
+.PHONY: docs
+## Builds the documentation.
 docs:
-	cd docs && rm -rf _build && pipenv run make html
+	cd docs && rm -rf _build && poetry run make html
 
 
 # QUALITY ASSURANCE
@@ -33,15 +42,19 @@ docs:
 # The following rules can be used to check code quality, import sorting, etc.
 # --------------------------------------------------------------------------------------------------
 
+.PHONY: qa
+## Trigger all quality assurance checks.
 qa: lint isort
 
-# Code quality checks (eg. flake8, eslint, etc).
+.PHONY: lint
+## Trigger Python code quality checks (flake8).
 lint:
-	pipenv run flake8
+	poetry run flake8
 
-# Import sort checks.
+.PHONY: isort
+## Check Python imports sorting.
 isort:
-	pipenv run isort --check-only --recursive --diff machina tests
+	poetry run isort --check-only --diff $(PROJECT_PACKAGE) $(TEST_PACKAGE)
 
 
 # TESTING
@@ -49,14 +62,49 @@ isort:
 # The following rules can be used to trigger tests execution and produce coverage reports.
 # --------------------------------------------------------------------------------------------------
 
-# Just runs all the tests!
+.PHONY: t tests
+## Alias of "tests".
+t: tests
+## Run the Python test suite.
 tests:
-	pipenv run py.test
+	poetry run py.test
 
-# Collects code coverage data.
+.PHONY: coverage
+## Collects code coverage data.
 coverage:
-	pipenv run py.test --cov-report term-missing --cov machina
+	poetry run py.test --cov-report term-missing --cov $(PROJECT_PACKAGE)
 
-# Run the tests in "spec" mode.
+.PHONY: spec
+## Run the tests in "spec" mode.
 spec:
-	pipenv run py.test --spec -p no:sugar
+	poetry run py.test --spec -p no:sugar
+
+
+# MAKEFILE HELPERS
+# ~~~~~~~~~~~~~~~~
+# The following rules can be used to list available commands and to display help messages.
+# --------------------------------------------------------------------------------------------------
+
+# COLORS
+GREEN  := $(shell tput -Txterm setaf 2)
+YELLOW := $(shell tput -Txterm setaf 3)
+WHITE  := $(shell tput -Txterm setaf 7)
+RESET  := $(shell tput -Txterm sgr0)
+
+.PHONY: help
+## Print Makefile help.
+help:
+	@echo ''
+	@echo 'Usage:'
+	@echo '  ${YELLOW}make${RESET} ${GREEN}<action>${RESET}'
+	@echo ''
+	@echo 'Actions:'
+	@awk '/^[a-zA-Z\-\_0-9]+:/ { \
+		helpMessage = match(lastLine, /^## (.*)/); \
+		if (helpMessage) { \
+			helpCommand = substr($$1, 0, index($$1, ":")-1); \
+			helpMessage = substr(lastLine, RSTART + 3, RLENGTH); \
+			printf "  ${YELLOW}%-$(TARGET_MAX_CHAR_NUM)-30s${RESET}\t${GREEN}%s${RESET}\n", helpCommand, helpMessage; \
+		} \
+	} \
+	{ lastLine = $$0 }' $(MAKEFILE_LIST) | sort -t'|' -sk1,1

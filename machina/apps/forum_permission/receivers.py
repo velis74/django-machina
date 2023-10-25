@@ -1,6 +1,10 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum permission signal receivers
+    =================================
 
-from __future__ import unicode_literals
+    This module defines signal receivers.
+
+"""
 
 from django.db.models.signals import post_migrate
 from django.dispatch import receiver
@@ -14,15 +18,13 @@ PermissionConfig = get_class('forum_permission.defaults', 'PermissionConfig')
 
 
 def create_permissions():
+    """ Creates all the permissions from the permission configuration. """
     for config in PermissionConfig.permissions:
-        try:
-            gp = ForumPermission.objects.get(codename=config['fields']['codename'])
-        except ForumPermission.DoesNotExist:
-            gp = ForumPermission(**config['fields'])
-        gp.save()
+        ForumPermission.objects.get_or_create(codename=config['codename'])
 
 
 @receiver(post_migrate)
 def create_global_permissions(sender, **kwargs):
+    """ Creates all the permissions from the permission configuration during migrations. """
     if sender.name.endswith('forum_permission'):
         create_permissions()

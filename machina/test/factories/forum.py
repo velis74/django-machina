@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 import factory
+import factory.django
 from django.utils.text import slugify
 from faker import Faker
 
@@ -12,10 +9,11 @@ from machina.core.db.models import get_model
 faker = Faker()
 
 Forum = get_model('forum', 'Forum')
+NAMES = [faker.name() for i in range(10)]
 
 
-class ForumFactory(factory.DjangoModelFactory):
-    name = faker.text(max_nb_chars=100)
+class ForumFactory(factory.django.DjangoModelFactory):
+    name = factory.LazyAttribute(lambda obj: factory.fuzzy.FuzzyChoice(NAMES).fuzz())
     slug = factory.LazyAttribute(lambda t: slugify(t.name))
 
     # Link forum specific

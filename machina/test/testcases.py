@@ -1,14 +1,10 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 import pytest
 from django.contrib.auth.models import User
 from django.test.client import Client
 
 
 @pytest.mark.django_db
-class BaseClientTestCase(object):
+class BaseClientTestCase:
     """
     Shortcut class for using Django's test client and avoid boilerplate code
     such as user login or user creation.
@@ -37,8 +33,8 @@ class BaseClientTestCase(object):
         user = User.objects.create_user(username or self.username,
                                         email or self.email,
                                         password or self.password)
-        user.is_staff = is_staff or self.is_staff
-        user.is_superuser = is_superuser or self.is_superuser
+        user.is_staff = is_staff if is_staff is not None else self.is_staff
+        user.is_superuser = is_superuser if is_superuser is not None else self.is_superuser
         user.save()
         return user
 

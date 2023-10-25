@@ -1,9 +1,13 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum moderation forms
+    ======================
 
-from __future__ import unicode_literals
+    This module defines forms provided by the ``forum_moderation`` application.
+
+"""
 
 from django import forms
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from machina.core.db.models import get_model
 from machina.core.loading import get_class
@@ -16,18 +20,17 @@ PermissionHandler = get_class('forum_permission.handler', 'PermissionHandler')
 
 
 class TopicMoveForm(forms.Form):
-    forum = forms.ChoiceField(
-        label=_('Select a destination forum'),
-        widget=SelectWithDisabled)
-    lock_topic = forms.BooleanField(
-        label=_('Lock topic'), required=False)
+    """ Allows to move a topic. """
+
+    forum = forms.ChoiceField(label=_('Select a destination forum'), widget=SelectWithDisabled)
+    lock_topic = forms.BooleanField(label=_('Lock topic'), required=False)
 
     def __init__(self, *args, **kwargs):
         self.topic = kwargs.pop('topic', None)
         self.user = kwargs.pop('user', None)
         self.perm_handler = PermissionHandler()
 
-        super(TopicMoveForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.allowed_forums = self.perm_handler.get_target_forums_for_moved_topics(self.user)
         forum_choices = []
@@ -39,7 +42,8 @@ class TopicMoveForm(forms.Form):
                     {
                         'label': '{} {}'.format('-' * f.margin_level, f.name),
                         'disabled': True,
-                    }))
+                    }
+                ))
             else:
                 forum_choices.append((f.id, '{} {}'.format('-' * f.margin_level, f.name)))
 

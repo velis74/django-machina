@@ -1,6 +1,10 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum tracking managers
+    =======================
 
-from __future__ import unicode_literals
+    This module defines managers provided by the ``forum_tracking`` application.
+
+"""
 
 from django.db import models
 
@@ -24,7 +28,7 @@ class ForumReadTrackManager(models.Manager):
         visibility_contents = ForumVisibilityContentTree.from_forums(forums)
         forum_ids_to_visibility_nodes = visibility_contents.as_dict
 
-        tracks = super(ForumReadTrackManager, self).get_queryset().select_related('forum').filter(
+        tracks = super().get_queryset().select_related('forum').filter(
             user=user,
             forum__in=forums)
         tracked_forums = []

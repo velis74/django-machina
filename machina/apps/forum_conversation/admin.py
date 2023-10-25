@@ -1,12 +1,15 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum conversation model admin definitions
+    ==========================================
 
-from __future__ import unicode_literals
+    This module defines admin classes used to populate the Django administration dashboard.
+
+"""
 
 from django.contrib import admin
 
 from machina.core.db.models import get_model
-from machina.models.fields import MarkupTextField
-from machina.models.fields import MarkupTextFieldWidget
+from machina.models.fields import MarkupTextField, MarkupTextFieldWidget
 
 
 Attachment = get_model('forum_attachments', 'Attachment')
@@ -20,6 +23,8 @@ class AttachmentInline(admin.TabularInline):
 
 
 class PostAdmin(admin.ModelAdmin):
+    """ The Post model admin. """
+
     inlines = [AttachmentInline, ]
     list_display = ('__str__', 'topic', 'poster', 'updated', 'approved')
     list_filter = ('created', 'updated',)
@@ -33,8 +38,11 @@ class PostAdmin(admin.ModelAdmin):
 
 
 class TopicAdmin(admin.ModelAdmin):
+    """ The Topic model admin. """
+
     list_display = (
-        'subject', 'forum', 'created', 'first_post', 'last_post', 'posts_count', 'approved')
+        'subject', 'forum', 'created', 'first_post', 'last_post', 'posts_count', 'approved',
+    )
     list_filter = ('created', 'updated',)
     raw_id_fields = ('poster', 'subscribers', )
     search_fields = ('subject',)

@@ -1,9 +1,12 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum conversation models
+    =========================
 
-from __future__ import unicode_literals
+    This module defines models provided by the ``forum_conversation`` application.
 
-from machina.apps.forum_conversation.abstract_models import AbstractPost
-from machina.apps.forum_conversation.abstract_models import AbstractTopic
+"""
+
+from machina.apps.forum_conversation.abstract_models import AbstractPost, AbstractTopic
 from machina.core.db.models import model_factory
 
 

@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 from django import template
 
 from machina.conf import settings as machina_settings
@@ -12,26 +8,24 @@ register = template.Library()
 
 @register.filter
 def posted_by(post, user):
-    """
-    This will return a boolean indicating if the passed user has posted
-    the given forum post.
+    """ This will return a boolean indicating if the passed user has posted the given forum post.
 
     Usage::
 
         {% if post|posted_by:user %}...{% endif %}
+
     """
     return post.poster == user
 
 
 @register.inclusion_tag('forum_conversation/topic_pages_inline_list.html')
 def topic_pages_inline_list(topic):
-    """
-    This will render an inline pagination for the posts related to the
-    given topic.
+    """ This will render an inline pagination for the posts related to the given topic.
 
     Usage::
 
         {% topic_pages_inline_list my_topic %}
+
     """
     data_dict = {
         'topic': topic,

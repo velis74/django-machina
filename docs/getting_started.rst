@@ -4,14 +4,13 @@ Getting started
 Requirements
 ------------
 
-* `Python`_ 2.7, 3.3, 3.4, 3.5 and 3.6
-* `Django`_ 1.11.x and 2.0.x
-* `Pillow`_ 2.2. or higher
-* `Django-mptt`_ 0.8. or higher
-* `Django-haystack`_ 2.1. or higher
-* `Markdown2`_ 2.3. or higher
-* `Django-widget-tweaks`_ 1.4. or higher
-
+* `Python`_ 3.6, 3.7, 3.8, 3.9 and 3.10
+* `Django`_ 3.2.x, 4.0.x, and 4.1.x
+* `Pillow`_
+* `Django-haystack`_
+* `Django-mptt`_
+* `Django-widget-tweaks`_
+* `Markdown2`_
 
 .. note::
 
@@ -41,14 +40,12 @@ Project configuration
 Django settings
 ~~~~~~~~~~~~~~~
 
-First update your ``INSTALLED_APPS`` in your project's settings module. Modify it to be a list and
-append the django-machina's  apps to this list:
+First update your ``INSTALLED_APPS`` in your project's settings module. Modify it so that it
+includes the machina's dependencies and the machina's own applications as follows:
 
 .. code-block:: python
 
-    from machina import get_apps as get_machina_apps
-
-    INSTALLED_APS = [
+    INSTALLED_APS = (
         'django.contrib.auth',
         'django.contrib.contenttypes',
         'django.contrib.sessions',
@@ -57,11 +54,24 @@ append the django-machina's  apps to this list:
         'django.contrib.staticfiles',
         'django.contrib.admin',
 
-        # Machina related apps:
+        # Machina dependencies:
         'mptt',
         'haystack',
         'widget_tweaks',
-    ] + get_machina_apps()
+
+        # Machina apps:
+        'machina',
+        'machina.apps.forum',
+        'machina.apps.forum_conversation',
+        'machina.apps.forum_conversation.forum_attachments',
+        'machina.apps.forum_conversation.forum_polls',
+        'machina.apps.forum_feeds',
+        'machina.apps.forum_moderation',
+        'machina.apps.forum_search',
+        'machina.apps.forum_tracking',
+        'machina.apps.forum_member',
+        'machina.apps.forum_permission',
+    )
 
 .. note::
 
@@ -183,19 +193,20 @@ Finally you have to update your main ``urls.py`` module in order to include the 
 
 .. code-block:: python
 
-    from machina.app import board
+    from django.urls import include, path
+    from machina import urls as machina_urls
 
-    urlpatterns = patterns(
+    urlpatterns = [
         # [...]
-        # Apps
-        url(r'^forum/', include(board.urls)),
-    )
+        path('forum/', include(machina_urls)),
+    ]
 
 Creating your first forums
 --------------------------
 
 You can now navigate to http://127.0.0.1:8000/forum/ in order to visualize the index of your forum
-board. As you should see no forums have been created yet. Django-machina does not ship with
+board (and you can use the ``forum:index`` URL name to add a link toward the forum in your Django
+templates). As you should see no forums have been created yet. Django-machina does not ship with
 pre-created forums, so you should navigate to your administration panel and create some forum
 instances.
 

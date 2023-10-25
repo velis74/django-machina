@@ -1,26 +1,32 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum attachments abstract models
+    =================================
 
-from __future__ import unicode_literals
+    This module defines abstract models provided by the ``forum_attachments`` application.
+
+"""
 
 import os
 
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from machina.conf import settings as machina_settings
 
 
-@python_2_unicode_compatible
+def get_attachment_file_upload_to(instance, filename):
+    """ Returns a valid upload path for the file of an attachment. """
+    return instance.get_file_upload_to(filename)
+
+
 class AbstractAttachment(models.Model):
-    """
-    Represents a post attachment. An attachment is always linked to a post.
-    """
+    """ Represents a post attachment. An attachment is always linked to a post. """
+
     post = models.ForeignKey(
         'forum_conversation.Post', related_name='attachments', on_delete=models.CASCADE,
-        verbose_name=_('Post'))
-    file = models.FileField(
-        verbose_name=_('File'), upload_to=machina_settings.ATTACHMENT_FILE_UPLOAD_TO)
+        verbose_name=_('Post'),
+    )
+    file = models.FileField(upload_to=get_attachment_file_upload_to, verbose_name=_('File'))
     comment = models.CharField(max_length=255, verbose_name=_('Comment'), blank=True, null=True)
 
     class Meta:
@@ -34,4 +40,9 @@ class AbstractAttachment(models.Model):
 
     @property
     def filename(self):
+        """ Returns the filename of the considered attachment. """
         return os.path.basename(self.file.name)
+
+    def get_file_upload_to(self, filename):
+        """ Returns the path to upload the associated file to. """
+        return os.path.join(machina_settings.ATTACHMENT_FILE_UPLOAD_TO, filename)

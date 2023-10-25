@@ -1,21 +1,28 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum search indexes
+    ====================
 
-from __future__ import unicode_literals
+    This module defines search indexes allowing to perform searches among forum topics and posts.
+
+"""
 
 from haystack import indexes
 
 from machina.core.db.models import get_model
+from machina.core.loading import get_class
 
 
 Post = get_model('forum_conversation', 'Post')
 
+get_forum_member_display_name = get_class('forum_member.shortcuts', 'get_forum_member_display_name')
+
 
 class PostIndex(indexes.SearchIndex, indexes.Indexable):
-    """
-    Defines the data stored in the Post indexes.
-    """
+    """ Defines the data stored in the Post indexes. """
+
     text = indexes.CharField(
-        document=True, use_template=True, template_name='forum_search/post_text.txt')
+        document=True, use_template=True, template_name='forum_search/post_text.txt',
+    )
 
     poster = indexes.IntegerField(model_attr='poster_id', null=True)
     poster_name = indexes.CharField()
@@ -35,7 +42,7 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
         return Post
 
     def prepare_poster_name(self, obj):
-        return obj.poster.username if obj.poster else obj.username
+        return get_forum_member_display_name(obj.poster) if obj.poster else obj.username
 
     def prepare_forum_slug(self, obj):
         return obj.topic.forum.slug

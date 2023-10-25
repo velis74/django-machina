@@ -1,6 +1,11 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum permission middlewares
+    ============================
 
-from __future__ import unicode_literals
+    This module defines permission-related middlewares that can ease the process of verifying forum
+    permissions during the request-response cycle.
+
+"""
 
 import uuid
 
@@ -36,7 +41,5 @@ class ForumPermissionMiddleware(MiddlewareMixin):
         request.forum_permission_handler = PermissionHandler()
 
     def get_anonymous_forum_key(self):
-        """
-        Returns a random anonymous forum key.
-        """
+        """ Returns a random anonymous forum key. """
         return uuid.uuid4().hex

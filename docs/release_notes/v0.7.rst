@@ -1,20 +1,32 @@
-####################################################
-Django-machina 0.7 release notes (UNDER DEVELOPMENT)
-####################################################
+#############################################
+Django-machina 0.7 release notes (2018-08-18)
+#############################################
 
 Requirements and compatibility
 ------------------------------
 
-Python 2.7, 3.4, 3.5 and 3.6. Django 1.11 and 2.0.
+Python 2.7, 3.4, 3.5, 3.6 and 3.7. Django 1.11, 2.0 and 2.1.
 
 Minor changes
 -------------
 
 * Topics are now a "raw ID field" in the post admin pages
   (`#99 <https://github.com/ellmetha/django-machina/pull/99>`_)
+* New filters are available in the admin interface for forum permissions
+  (`#137 <https://github.com/ellmetha/django-machina/pull/137>`_)
 
 Fixes
 -----
 
 * Fix incorrect labels appearing when using the select widget associated with the forum tree
   (`#102 <https://github.com/ellmetha/django-machina/issues/102>`_)
+* Prevent user from trying to create forums under a link in the admin
+  (`#121 <https://github.com/ellmetha/django-machina/pull/121>`_)
+* Ensured navbar brand text can be customized
+  (`#122 <https://github.com/ellmetha/django-machina/issues/122>`_)
+
+Backwards incompatible changes
+------------------------------
+
+* The ``TopicSubscribtionListView`` view was renamed ``TopicSubscriptionListView``
+  (`#139 <https://github.com/ellmetha/django-machina/pull/139>`_)

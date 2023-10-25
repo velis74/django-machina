@@ -1,6 +1,10 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum polls model admin definitions
+    ===================================
 
-from __future__ import unicode_literals
+    This module defines admin classes used to populate the Django administration dashboard.
+
+"""
 
 from django.contrib import admin
 
@@ -18,18 +22,24 @@ class TopicPollOptionInline(admin.TabularInline):
 
 
 class TopicPollOptionAdmin(admin.ModelAdmin):
+    """ The Topic Poll Option model admin. """
+
     list_display = ('__str__', 'poll', 'text',)
     search_fields = ('text',)
 
 
 class TopicPollAdmin(admin.ModelAdmin):
+    """ The Topic Poll model admin. """
+
     inlines = (TopicPollOptionInline,)
-    list_display = ('topic', 'duration', 'max_options', 'user_changes',)
+    list_display = ('topic', 'duration', 'max_options', 'user_changes', 'hide_results')
     list_filter = ('created', 'updated',)
     search_fields = ('topic__subject',)
 
 
 class TopicPollVoteAdmin(admin.ModelAdmin):
+    """ The Topic Poll Vote model admin. """
+
     list_display = ('__str__', 'voter',)
 
 

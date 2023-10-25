@@ -1,11 +1,6 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 from django.db import models
 
-from machina.models.fields import ExtendedImageField
-from machina.models.fields import MarkupTextField
+from machina.models.fields import ExtendedImageField, MarkupTextField
 
 
 RESIZED_IMAGE_WIDTH = 100

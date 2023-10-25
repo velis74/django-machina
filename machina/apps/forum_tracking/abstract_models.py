@@ -1,11 +1,14 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum tracking abstract models
+    ==============================
 
-from __future__ import unicode_literals
+    This module defines abstract models provided by the ``forum_tracking`` application.
+
+"""
 
 from django.conf import settings
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from machina.core.loading import get_class
 
@@ -13,16 +16,16 @@ from machina.core.loading import get_class
 ForumReadTrackManager = get_class('forum_tracking.managers', 'ForumReadTrackManager')
 
 
-@python_2_unicode_compatible
 class AbstractForumReadTrack(models.Model):
-    """
-    Represents a track which records which forums have been read by a given user.
-    """
+    """ Represents a track which records which forums have been read by a given user. """
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name='forum_tracks', on_delete=models.CASCADE,
-        verbose_name=_('User'))
+        verbose_name=_('User'),
+    )
     forum = models.ForeignKey(
-        'forum.Forum', related_name='tracks', on_delete=models.CASCADE, verbose_name=_('Forum'))
+        'forum.Forum', related_name='tracks', on_delete=models.CASCADE, verbose_name=_('Forum'),
+    )
     mark_time = models.DateTimeField(auto_now=True, db_index=True)
 
     objects = ForumReadTrackManager()
@@ -38,17 +41,17 @@ class AbstractForumReadTrack(models.Model):
         return '{} - {}'.format(self.user, self.forum)
 
 
-@python_2_unicode_compatible
 class AbstractTopicReadTrack(models.Model):
-    """
-    Represents a track which records which topics have been read by a given user.
-    """
+    """ Represents a track which records which topics have been read by a given user. """
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name='topic_tracks', on_delete=models.CASCADE,
-        verbose_name=_('User'))
+        verbose_name=_('User'),
+    )
     topic = models.ForeignKey(
         'forum_conversation.Topic', related_name='tracks', on_delete=models.CASCADE,
-        verbose_name=_('Topic'))
+        verbose_name=_('Topic'),
+    )
     mark_time = models.DateTimeField(auto_now=True, db_index=True)
 
     class Meta:

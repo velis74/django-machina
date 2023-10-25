@@ -45,6 +45,14 @@ Default: ``{}``
 This setting defines the keyword arguments that will be used when instanciating the widgets
 associated with the ``MACHINA_MARKUP_WIDGET`` setting.
 
+``MACHINA_MARKUP_MAX_LENGTH_VALIDATOR``
+---------------------------------------
+
+Default: ``'machina.core.validators.NullableMaxLengthValidator'``
+
+The settings defines the Python path to a validator that is used to validate the maximum length of
+posts or forum member signatures.
+
 ``MACHINA_BASE_TEMPLATE_NAME``
 ------------------------------
 
@@ -52,6 +60,16 @@ Default: ``'_base.html'``
 
 This setting defines the name of the base template that is extended by the django-machina's main
 ``board_base.html`` template.
+
+``MACHINA_USER_DISPLAY_NAME_METHOD``
+------------------------------------
+
+Default: ``'get_username'``
+
+The setting defines the name of a method on the project's ``User`` model to be used to retrieve
+user display names. For example you can use it to ensure that the full name of users is displayed in
+the forum application instead of their usernames. The method name you put in this setting have to
+correspond to a real method available on your project's ``User`` model.
 
 
 Forum
@@ -287,19 +305,21 @@ permissions to all the users and for all the forums you created. In that case, t
 used in order to define which permissions should be granted to all authenticated users. Note that
 the permissions specified in this list are granted only if the considered forum does not have any
 permission for the considered authenticated user. For example, the setting could be specified as
-follows::
+follows:
 
-	MACHINA_DEFAULT_AUTHENTICATED_USER_FORUM_PERMISSIONS = [
-	    'can_see_forum',
-	    'can_read_forum',
-	    'can_start_new_topics',
-	    'can_reply_to_topics',
-	    'can_edit_own_posts',
-	    'can_post_without_approval',
-	    'can_create_polls',
-	    'can_vote_in_polls',
-	    'can_download_file',
-	]
+.. code-block:: python
+
+    MACHINA_DEFAULT_AUTHENTICATED_USER_FORUM_PERMISSIONS = [
+        'can_see_forum',
+        'can_read_forum',
+        'can_start_new_topics',
+        'can_reply_to_topics',
+        'can_edit_own_posts',
+        'can_post_without_approval',
+        'can_create_polls',
+        'can_vote_in_polls',
+        'can_download_file',
+    ]
 
 For a full list of the available forum permissions, please refer to :doc:`forum_permissions`.
 

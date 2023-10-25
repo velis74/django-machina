@@ -1,23 +1,16 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
+from functools import partial
+from io import BytesIO
 from os import path
 
 from django.core.exceptions import ImproperlyConfigured
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
 from django.db.models import signals
-from django.forms import Textarea
-from django.forms import ValidationError
+from django.forms import Textarea, ValidationError
 from django.template.defaultfilters import filesizeformat
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.encoding import smart_str
-from django.utils.functional import curry
-from django.utils.safestring import SafeData
-from django.utils.safestring import mark_safe
-from django.utils.six import BytesIO
-from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import SafeData, mark_safe
+from django.utils.translation import gettext_lazy as _
 
 from machina.conf import settings as machina_settings
 
@@ -26,7 +19,7 @@ _rendered_field_name = lambda name: '_{}_rendered'.format(name)
 
 
 def _get_markup_widget():
-    dotted_path = machina_settings.MACHINA_MARKUP_WIDGET
+    dotted_path = machina_settings.MARKUP_WIDGET
     try:
         assert dotted_path is not None
         module, widget = dotted_path.rsplit('.', 1)
@@ -34,9 +27,11 @@ def _get_markup_widget():
         widget = getattr(__import__(module, {}, {}, [widget]), widget)
         return widget
     except ImportError as e:
-        raise ImproperlyConfigured(_('Could not import MACHINA_MARKUP_WIDGET {}: {}').format(
-            machina_settings.MACHINA_MARKUP_WIDGET,
-            e))
+        raise ImproperlyConfigured(
+            _('Could not import MACHINA_MARKUP_WIDGET {}: {}').format(
+                machina_settings.MARKUP_WIDGET, e
+            )
+        )
     except AssertionError:
         return Textarea
 
@@ -48,22 +43,25 @@ def _get_render_function(dotted_path, kwargs):
     module, func = dotted_path.rsplit('.', 1)
     module, func = smart_str(module), smart_str(func)
     func = getattr(__import__(module, {}, {}, [func]), func)
-    return curry(func, **kwargs)
+    return partial(func, **kwargs)
 
 
 try:
-    markup_lang = machina_settings.MACHINA_MARKUP_LANGUAGE
-    render_func = _get_render_function(markup_lang[0], markup_lang[1]) if markup_lang \
+    markup_lang = machina_settings.MARKUP_LANGUAGE
+    render_func = (
+        _get_render_function(markup_lang[0], markup_lang[1]) if markup_lang
         else lambda text: text
+    )
 except ImportError as e:
-    raise ImproperlyConfigured(_('Could not import MACHINA_MARKUP_LANGUAGE {}: {}').format(
-        machina_settings.MACHINA_MARKUP_LANGUAGE,
-        e))
-except AttributeError as e:
+    raise ImproperlyConfigured(
+        _('Could not import MACHINA_MARKUP_LANGUAGE {}: {}').format(
+            machina_settings.MARKUP_LANGUAGE, e,
+        )
+    )
+except AttributeError:
     raise ImproperlyConfigured(_('MACHINA_MARKUP_LANGUAGE setting is required'))
 
 
-@python_2_unicode_compatible
 class MarkupText(SafeData):
     def __init__(self, instance, field_name, rendered_field_name):
         # Stores a reference to the instance along with field names
@@ -96,7 +94,7 @@ class MarkupText(SafeData):
         return len(self.raw)
 
 
-class MarkupTextDescriptor(object):
+class MarkupTextDescriptor:
     """
     Acts as the Django's default attribute descriptor class, enabled via the SubfieldBase metaclass.
     The main difference is that it does not call to_python() on the MarkupTextField class. Instead,
@@ -131,12 +129,13 @@ class MarkupTextField(models.TextField):
     The initial column store any content written by using a given markup language and the other one
     keeps the rendered content returned by a specific render function.
     """
+
     def __init__(self, *args, **kwargs):
         # For Django 1.7 migration serializer compatibility: the frozen version of a
         # MarkupTextField can't try to add a '*_rendered' field, because the '*_rendered' field
         # itself is frozen / serialized as well.
         self.add_rendered_field = not kwargs.pop('no_rendered_field', False)
-        super(MarkupTextField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def deconstruct(self):  # pragma: no cover
         """
@@ -146,7 +145,7 @@ class MarkupTextField(models.TextField):
         re-create it. We use it in order to pass the 'no_rendered_field' to the __init__() method.
         This will allow the _rendered field to not be added to the model class twice.
         """
-        name, import_path, args, kwargs = super(MarkupTextField, self).deconstruct()
+        name, import_path, args, kwargs = super().deconstruct()
         kwargs['no_rendered_field'] = True
         return name, import_path, args, kwargs
 
@@ -159,7 +158,7 @@ class MarkupTextField(models.TextField):
         signals.pre_save.connect(self.render_data, sender=cls)
 
         # Add the default text field
-        super(MarkupTextField, self).contribute_to_class(cls, name)
+        super().contribute_to_class(cls, name)
 
         # Associates the name of this field to a special descriptor that will return
         # an appropriate Markup object each time the field is accessed
@@ -186,9 +185,9 @@ class MarkupTextField(models.TextField):
 
     def formfield(self, **kwargs):
         widget = _get_markup_widget()
-        defaults = {'widget': widget(**machina_settings.MACHINA_MARKUP_WIDGET_KWARGS)}
+        defaults = {'widget': widget(**machina_settings.MARKUP_WIDGET_KWARGS)}
         defaults.update(kwargs)
-        field = super(MarkupTextField, self).formfield(**defaults)
+        field = super().formfield(**defaults)
         return field
 
 
@@ -197,6 +196,7 @@ class ExtendedImageField(models.ImageField):
     An ExtendedImageField is an ImageField whose image can be resized before being saved.
     This field also add the capability of checking the image size, width and height a user may send.
     """
+
     def __init__(self, *args, **kwargs):
         self.width = kwargs.pop('width', None)
         self.height = kwargs.pop('height', None)
@@ -207,11 +207,11 @@ class ExtendedImageField(models.ImageField):
         self.min_height = kwargs.pop('min_height', None)
         self.max_height = kwargs.pop('max_height', None)
         self.max_upload_size = kwargs.pop('max_upload_size', 0)
-        super(ExtendedImageField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def clean(self, *args, **kwargs):
         from django.core.files.images import get_image_dimensions
-        data = super(ExtendedImageField, self).clean(*args, **kwargs)
+        data = super().clean(*args, **kwargs)
         image = data.file
 
         # Controls the file size
@@ -231,13 +231,17 @@ class ExtendedImageField(models.ImageField):
             raise ValidationError(
                 _('Images of width lesser than {}px or greater than {}px or are not allowed. '
                   'The width of your image is {}px').format(
-                    self.min_width, self.max_width, image_width))
+                    self.min_width, self.max_width, image_width
+                )
+            )
         if self.min_height and self.max_height \
                 and not self.min_height <= image_height <= self.max_height:
             raise ValidationError(
                 _('Images of height lesser than {}px or greater than {}px or are not allowed. '
                   'The height of your image is {}px').format(
-                    self.min_height, self.max_height, image_height))
+                    self.min_height, self.max_height, image_height
+                )
+            )
 
         return data
 
@@ -251,17 +255,15 @@ class ExtendedImageField(models.ImageField):
 
             # Regenerate a File object
             data = SimpleUploadedFile(filename, content)
-        super(ExtendedImageField, self).save_form_data(instance, data)
+        super().save_form_data(instance, data)
 
     def resize_image(self, data, size):
-        """
-        Resizes the given image to fit inside a box of the given size
-        """
+        """ Resizes the given image to fit inside a box of the given size. """
         from machina.core.compat import PILImage as Image
         image = Image.open(BytesIO(data))
 
         # Resize!
-        image.thumbnail(size, Image.ANTIALIAS)
+        image.thumbnail(size, Image.LANCZOS)
 
         string = BytesIO()
         image.save(string, format='PNG')

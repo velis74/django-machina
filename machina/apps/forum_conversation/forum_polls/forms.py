@@ -1,12 +1,15 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum polls forms
+    =================
 
-from __future__ import unicode_literals
+    This module defines forms provided by the ``forum_polls`` application.
+
+"""
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.forms.models import BaseModelFormSet
-from django.forms.models import modelformset_factory
-from django.utils.translation import ugettext_lazy as _
+from django.forms.models import BaseModelFormSet, modelformset_factory
+from django.utils.translation import gettext_lazy as _
 
 from machina.conf import settings as machina_settings
 from machina.core.db.models import get_model
@@ -23,7 +26,7 @@ class TopicPollOptionForm(forms.ModelForm):
         fields = ['text', ]
 
     def __init__(self, *args, **kwargs):
-        super(TopicPollOptionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Update the 'text' field
         self.fields['text'].label = ''
@@ -40,7 +43,7 @@ class BaseTopicPollOptionFormset(BaseModelFormSet):
         if self.topic:
             self.poll = get_object_or_none(TopicPoll, topic=self.topic)
 
-        super(BaseTopicPollOptionFormset, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if self.poll is not None:
             for form in self.forms:
@@ -51,7 +54,7 @@ class BaseTopicPollOptionFormset(BaseModelFormSet):
         This rewrite of total_form_count allows to add an empty form to the formset only when
         no initial data is provided.
         """
-        total_forms = super(BaseTopicPollOptionFormset, self).total_form_count()
+        total_forms = super().total_form_count()
         if not self.data and not self.files and self.initial_form_count() > 0:
             total_forms -= self.extra
         return total_forms
@@ -63,8 +66,12 @@ class BaseTopicPollOptionFormset(BaseModelFormSet):
         # At least two options must be defined
         number_of_options = 0
         for form in self.forms:
-            if not ((self.can_delete and self._should_delete_form(form)) or
-                    len(form.cleaned_data) == 0):
+            if (
+                not (
+                    (self.can_delete and self._should_delete_form(form)) or
+                    len(form.cleaned_data) == 0
+                )
+            ):
                 number_of_options += 1
         if number_of_options < 2:
             raise forms.ValidationError('At least two poll options must be defined.')
@@ -74,6 +81,7 @@ class BaseTopicPollOptionFormset(BaseModelFormSet):
         poll_max_options = kwargs.pop('poll_max_options', None)
         poll_duration = kwargs.pop('poll_duration', None)
         poll_user_changes = kwargs.pop('poll_user_changes', False)
+        poll_hide_results = kwargs.pop('poll_hide_results', False)
 
         if self.poll is None:
             poll, _ = TopicPoll.objects.get_or_create(topic=self.topic)
@@ -82,33 +90,37 @@ class BaseTopicPollOptionFormset(BaseModelFormSet):
             poll.duration = poll_duration
             poll.max_options = poll_max_options
             poll.user_changes = poll_user_changes
+            poll.hide_results = poll_hide_results
             poll.save()
 
             for form in self.forms:
                 form.instance.poll = poll
-        super(BaseTopicPollOptionFormset, self).save(commit)
+        super().save(commit)
 
 
 TopicPollOptionFormset = modelformset_factory(
     TopicPollOption, TopicPollOptionForm,
     formset=BaseTopicPollOptionFormset,
     can_delete=True, extra=2, max_num=machina_settings.POLL_MAX_OPTIONS_PER_POLL,
-    validate_max=True)
+    validate_max=True,
+)
 
 
 class TopicPollVoteForm(forms.Form):
     def __init__(self, poll, *args, **kwargs):
         self.poll = poll
-        super(TopicPollVoteForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if poll.max_options == 1:
             self.fields['options'] = forms.ModelChoiceField(
                 label='', queryset=poll.options.all(), empty_label=None,
-                widget=forms.RadioSelect())
+                widget=forms.RadioSelect(),
+            )
         else:
             self.fields['options'] = forms.ModelMultipleChoiceField(
                 label='', queryset=poll.options.all(),
-                widget=forms.CheckboxSelectMultiple())
+                widget=forms.CheckboxSelectMultiple(),
+            )
 
     def clean_options(self):
         options = self.cleaned_data['options']
@@ -117,7 +129,7 @@ class TopicPollVoteForm(forms.Form):
         return options
 
     def clean(self):
-        cleaned_data = super(TopicPollVoteForm, self).clean()
+        cleaned_data = super().clean()
 
         if 'options' not in cleaned_data:
             msg = _('You must specify an option when voting.')

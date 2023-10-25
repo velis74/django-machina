@@ -1,16 +1,19 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum search views
+    ==================
 
-from __future__ import unicode_literals
+    This module defines views provided by the ``forum_search`` application.
+
+"""
 
 from haystack import views
 
 
 class FacetedSearchView(views.FacetedSearchView):
-    """
-    Allows to search within forums
-    """
+    """ Allows to search within forums. """
+
     template = 'forum_search/search.html'
 
     def build_form(self):
-        form = super(self.__class__, self).build_form(form_kwargs={'user': self.request.user})
+        form = super().build_form(form_kwargs={'user': self.request.user})
         return form

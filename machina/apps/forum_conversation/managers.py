@@ -1,16 +1,17 @@
-# -*- coding: utf-8 -*-
+"""
+    Forum conversation managers
+    ===========================
 
-from __future__ import unicode_literals
+    This module defines model managers related to forum conversation models.
+
+"""
 
 from django.db import models
 
 
 class ApprovedManager(models.Manager):
     def get_queryset(self):
-        """
-        Returns all the approved topics or posts.
-        """
-        qs = super(ApprovedManager, self).get_queryset()
+        """ Returns all the approved topics or posts. """
+        qs = super().get_queryset()
         qs = qs.filter(approved=True)
-
         return qs

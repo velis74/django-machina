@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 import pytest
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.http import HttpResponse
 from django.template import Context
 from django.template.base import Template
 from django.template.loader import render_to_string
@@ -12,9 +9,7 @@ from django.test.client import RequestFactory
 from machina.apps.forum_permission.middleware import ForumPermissionMiddleware
 from machina.core.db.models import get_model
 from machina.core.loading import get_class
-from machina.test.factories import UserFactory
-from machina.test.factories import create_category_forum
-from machina.test.factories import create_forum
+from machina.test.factories import UserFactory, create_category_forum, create_forum
 
 
 Forum = get_model('forum', 'Forum')
@@ -46,12 +41,12 @@ class TestForumListTag(object):
         forums = Forum.objects.all()
 
         request = self.request_factory.get('/')
-        middleware = SessionMiddleware()
+        middleware = SessionMiddleware(lambda r: HttpResponse("Response"))
         middleware.process_request(request)
         request.session.save()
 
         request.user = self.user
-        ForumPermissionMiddleware().process_request(request)
+        ForumPermissionMiddleware(lambda r: HttpResponse("Response")).process_request(request)
         t = Template(self.loadstatement + '{% forum_list forums %}')
         c = Context({'forums': ForumVisibilityContentTree.from_forums(forums), 'request': request})
         expected_out = render_to_string(

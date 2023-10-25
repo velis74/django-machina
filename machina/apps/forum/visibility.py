@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
     The visibility module
     =====================
@@ -9,13 +7,11 @@
 
 """
 
-from __future__ import unicode_literals
-
 from django.db.models.query import QuerySet
 from django.utils.functional import cached_property
 
 
-class ForumVisibilityContentTree(object):
+class ForumVisibilityContentTree:
     """ Represents a tree of ``ForumVisibilityContentNode`` instances.
 
     Such a tree can be used to easily compute sums or "global" values associated with a given set of
@@ -30,6 +26,9 @@ class ForumVisibilityContentTree(object):
         # position in the tree of forum).
         self.nodes = nodes or []
 
+    def __bool__(self):
+        return len(self.forums) > 0
+
     @classmethod
     def from_forums(cls, forums):
         """ Initializes a ``ForumVisibilityContentTree`` instance from a list of forums. """
@@ -39,8 +38,10 @@ class ForumVisibilityContentTree(object):
 
         # Ensures forums last posts and related poster relations are "followed" for better
         # performance (only if we're considering a queryset).
-        forums = forums.select_related('last_post', 'last_post__poster') \
+        forums = (
+            forums.select_related('last_post', 'last_post__poster')
             if isinstance(forums, QuerySet) else forums
+        )
 
         for forum in forums:
             level = forum.level
@@ -85,10 +86,15 @@ class ForumVisibilityContentTree(object):
             # If forums at the root level don't have parents, the visible forums are those that can
             # be seen from the root of the forums tree.
             vcontent_node.visible = (
-                (relative_level == 0) or (forum.display_sub_forum_list and relative_level == 1) or
+                (relative_level == 0) or
+                (forum.display_sub_forum_list and relative_level == 1) or
                 (forum.is_category and relative_level == 1) or
-                (relative_level == 2 and vcontent_node.parent.parent.obj.is_category and
-                 vcontent_node.parent.obj.is_forum))
+                (
+                    relative_level == 2 and
+                    vcontent_node.parent.parent.obj.is_category and
+                    vcontent_node.parent.obj.is_forum
+                )
+            )
 
             # Add the current forum to the end of the current branch and inserts the node inside the
             # final node dictionary.
@@ -132,7 +138,7 @@ class ForumVisibilityContentTree(object):
         return list(filter(lambda n: n.visible, self.nodes))
 
 
-class ForumVisibilityContentNode(object):
+class ForumVisibilityContentNode:
     """ Represents a forum object and its "visibility content".
 
     This class provides common properties that should help computing values such as posts counts or
@@ -181,9 +187,10 @@ class ForumVisibilityContentNode(object):
         else:
             nodes = self.tree.nodes
             index = nodes.index(self)
-            sibling = next(
-                (n for n in nodes[index + 1:] if n.level == self.level), None) \
+            sibling = (
+                next((n for n in nodes[index + 1:] if n.level == self.level), None)
                 if index < len(nodes) - 1 else None
+            )
         return sibling
 
     @cached_property
@@ -206,9 +213,10 @@ class ForumVisibilityContentNode(object):
         else:
             nodes = self.tree.nodes
             index = nodes.index(self)
-            sibling = next(
-                (n for n in reversed(nodes[:index]) if n.level == self.level), None) \
+            sibling = (
+                next((n for n in reversed(nodes[:index]) if n.level == self.level), None)
                 if index > 0 else None
+            )
         return sibling
 
     @cached_property
